@@ -1,4 +1,4 @@
-// Your OpenWeatherMap API key
+
 const API_KEY = '2a0c6576f9c80562c5831df719988cee';
 
 // DOM Elements
@@ -28,20 +28,19 @@ function handleSearch() {
     }
 }
 
-// Show error message
 function showError(message) {
     errorMessage.textContent = message;
     currentWeatherEl.innerHTML = '';
     forecastContainer.innerHTML = '';
 }
 
-// Show loading state
+
 function showLoading() {
     currentWeatherEl.innerHTML = '<div class="loader"></div>';
     forecastContainer.innerHTML = '';
 }
 
-// Fetch weather data
+
 async function fetchWeatherData(city) {
     showLoading();
     
@@ -126,7 +125,6 @@ function displayCurrentWeather(data) {
     `;
 }
 
-// Display 5-day forecast
 function displayForecast(data) {
     if (!data || !data.list) {
         showError('No forecast data available');
@@ -151,7 +149,6 @@ function displayForecast(data) {
     `).join('');
 }
 
-// Check if geolocation is available and get user's location
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
         position => {
