@@ -46,13 +46,10 @@ async function fetchWeatherData(city) {
     showLoading();
     
     try {
-        // Use HTTPS for the API calls
+        
         const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`;
         const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`;
 
-        // Log the URLs for debugging (remove in production)
-        console.log('Current Weather URL:', currentWeatherUrl);
-        console.log('Forecast URL:', forecastUrl);
 
         const [currentResponse, forecastResponse] = await Promise.all([
             fetch(currentWeatherUrl).then(response => {
