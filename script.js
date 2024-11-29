@@ -1,4 +1,3 @@
-
 const API_KEY = '2a0c6576f9c80562c5831df719988cee';
 
 // DOM Elements
@@ -131,22 +130,50 @@ function displayForecast(data) {
         return;
     }
 
-    const dailyData = data.list.filter(reading => reading.dt_txt.includes('12:00:00')).slice(0, 5);
+    // Group forecast data by day
+    const groupedData = {};
+    data.list.forEach(reading => {
+        const date = new Date(reading.dt * 1000).toLocaleDateString('en-US');
+        if (!groupedData[date]) {
+            groupedData[date] = [];
+        }
+        groupedData[date].push(reading);
+    });
+
+    // Get the next 5 days
+    const dailyData = Object.entries(groupedData).slice(0, 5);
     
-    forecastContainer.innerHTML = dailyData.map(day => `
-        <div class="forecast-card">
-            <div class="forecast-date">
-                ${new Date(day.dt * 1000).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
+    forecastContainer.innerHTML = dailyData.map(([date, readings]) => {
+        // Calculate min and max temperatures for the day
+        const temps = readings.map(r => r.main.temp);
+        const minTemp = Math.min(...temps);
+        const maxTemp = Math.max(...temps);
+        
+        // Get the noon reading or the middle reading of the day
+        const noonReading = readings.find(r => r.dt_txt.includes('12:00:00')) || readings[Math.floor(readings.length/2)];
+        
+        return `
+            <div class="forecast-card">
+                <div class="forecast-date">
+                    ${new Date(noonReading.dt * 1000).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
+                </div>
+                <img 
+                    src="https://openweathermap.org/img/wn/${noonReading.weather[0].icon}@2x.png" 
+                    alt="${noonReading.weather[0].description}"
+                    class="forecast-icon"
+                >
+                <div class="forecast-temp-range">
+                    <span class="max-temp">${maxTemp.toFixed(1)}°C</span>
+                    <span class="min-temp">${minTemp.toFixed(1)}°C</span>
+                </div>
+                <div class="forecast-desc">${noonReading.weather[0].description}</div>
+                <div class="forecast-details">
+                    <div>💧 ${noonReading.main.humidity}%</div>
+                    <div>💨 ${(noonReading.wind.speed * 3.6).toFixed(1)} km/h</div>
+                </div>
             </div>
-            <img 
-                src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" 
-                alt="${day.weather[0].description}"
-                class="forecast-icon"
-            >
-            <div class="forecast-temp">${Math.round(day.main.temp)}°C</div>
-            <div class="forecast-desc">${day.weather[0].description}</div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 if (navigator.geolocation) {
